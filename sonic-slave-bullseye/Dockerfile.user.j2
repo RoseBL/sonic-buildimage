@@ -14,11 +14,13 @@ ARG hostname
 ENV BUILD_HOSTNAME $hostname
 ENV USER $user
 
-RUN groupadd -f -r -g $guid g$user
+# 创建 docker 组（如果它不存在）
+RUN groupadd -f docker
 
-RUN useradd $user -l -u $uid -g $guid -d /var/$user -m -s /bin/bash
-
-RUN gpasswd -a $user docker
+# 创建用户和组
+RUN groupadd -f -r -g $guid g$user && \
+    useradd $user -l -u $uid -g $guid -d /var/$user -m -s /bin/bash && \
+    gpasswd -a $user docker
 
 # Config git for stg
 RUN su $user -c "git config --global user.name $user"

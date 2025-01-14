@@ -2,9 +2,9 @@
 
 NOJESSIE ?= 1
 NOSTRETCH ?= 1
-NOBUSTER ?= 0
+NOBUSTER ?= 1
 NOBULLSEYE ?= 0
-NOBOOKWORM ?= 0
+NOBOOKWORM ?= 1
 
 override Q := @
 ifeq ($(QUIET),n)
@@ -57,7 +57,6 @@ endif
 ifeq ($(NOBOOKWORM), 0)
 	$(MAKE_WITH_RETRY) BLDENV=bookworm -f Makefile.work $@
 endif
-	BLDENV=bookworm $(MAKE) -f Makefile.work docker-cleanup
 
 jessie:
 	@echo "+++ Making $@ +++"

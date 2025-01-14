@@ -69,9 +69,9 @@ USER := $(shell id -un)
 PWD := $(shell pwd)
 USER_LC := $(shell echo $(USER) | tr A-Z a-z)
 ifneq ($(DEFAULT_CONTAINER_REGISTRY),)
-DOCKER_MACHINE := $(shell docker run --rm $(DEFAULT_CONTAINER_REGISTRY)/debian:buster uname -m)
+DOCKER_MACHINE := $(shell docker run --rm $(DEFAULT_CONTAINER_REGISTRY)/uosbase:uos uname -m)
 else
-DOCKER_MACHINE := $(shell docker run --rm debian:buster uname -m)
+DOCKER_MACHINE := $(shell docker run --rm uosbase:uos uname -m)
 endif
 HOST_DOCKERD_GID := $(shell getent group docker | cut -d : -f3)
 
@@ -84,7 +84,7 @@ COMPILE_HOST_ARCH := armhf
 else
 COMPILE_HOST_ARCH := amd64
 endif
-
+COMPILE_HOST_ARCH := sw_64
 
 ifeq ($(USER), root)
 $(error Add your user account to docker group and use your user account to make. root or sudo are not supported!)
@@ -119,7 +119,7 @@ endif
 ifeq ($(PLATFORM_ARCH),)
 	override PLATFORM_ARCH = $(CONFIGURED_ARCH)
 endif
-
+CONFIGURED_ARCH = sw_64
 ifeq ($(CONFIGURED_ARCH),amd64)
 TARGET_BOOTLOADER = grub
 else

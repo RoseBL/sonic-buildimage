@@ -27,7 +27,8 @@ SRC_PATH = src
 RULES_PATH = rules
 TARGET_PATH = target
 DOCKERS_PATH = dockers
-BLDENV := $(shell lsb_release -cs)
+#BLDENV := $(shell lsb_release -cs)
+BLDENV := bullseye
 DEBS_PATH = $(TARGET_PATH)/debs/$(BLDENV)
 FILES_PATH = $(TARGET_PATH)/files/$(BLDENV)
 PYTHON_DEBS_PATH = $(TARGET_PATH)/python-debs/$(BLDENV)
@@ -64,7 +65,7 @@ ifeq ($(CONFIGURED_ARCH),arm64)
 endif
 endif
 
-IMAGE_DISTRO := bookworm
+IMAGE_DISTRO := bullseye
 IMAGE_DISTRO_DEBS_PATH = $(TARGET_PATH)/debs/$(IMAGE_DISTRO)
 IMAGE_DISTRO_FILES_PATH = $(TARGET_PATH)/files/$(IMAGE_DISTRO)
 
@@ -1025,7 +1026,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_SIMPLE_DOCKER_IMAGES)) : $(TARGET_PATH)/%.g
 	DBGOPT='$(DBGOPT)' \
 	scripts/prepare_docker_buildinfo.sh $* $($*.gz_PATH)/Dockerfile $(CONFIGURED_ARCH) $(TARGET_DOCKERFILE)/Dockerfile.buildinfo $(LOG)
 	docker info $(LOG)
-	docker build --squash --no-cache \
+	docker build  --no-cache \
 		--build-arg http_proxy=$(HTTP_PROXY) \
 		--build-arg https_proxy=$(HTTPS_PROXY) \
 		--build-arg no_proxy=$(NO_PROXY) \
@@ -1099,6 +1100,11 @@ endif
 endif
 endif
 endif
+$(info lbinxxxxxxxxSONIC_BULLSEYE_DOCKERS=DOCKER_IMAGESxxxxxxxxxxxxxx ,$(SONIC_BULLSEYE_DOCKERS))
+$(info lbinxxxxxxxxDOCKER_IMAGES_FOR_INSTALLERSxxxxxxxxxxxxxx ,$(DOCKER_IMAGES_FOR_INSTALLERS))
+$(info lbinxxxxxxxxEXTRA_DOCKER_TARGETSxxxxxxxxxxxxxx ,$(EXTRA_DOCKER_TARGETS))
+$(info lbinxxxxxxxxSONIC_PACKAGES_LOCALxxxxxxxxxxxxxx ,$(SONIC_PACKAGES_LOCAL))
+$(info lbinxxxxxxxxBULLSEYE_DOCKER_IMAGESxxxxxxxxxxxxxx ,$(BULLSEYE_DOCKER_IMAGES))
 
 $(foreach IMAGE,$(DOCKER_IMAGES), $(eval $(IMAGE)_DEBS_PATH := $(DEBS_PATH)))
 $(foreach IMAGE,$(DOCKER_IMAGES), $(eval $(IMAGE)_FILES_PATH := $(FILES_PATH)))
@@ -1173,7 +1179,7 @@ $(addprefix $(TARGET_PATH)/, $(DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .platform
 		DBGOPT='$(DBGOPT)' \
 		scripts/prepare_docker_buildinfo.sh $* $($*.gz_PATH)/Dockerfile $(CONFIGURED_ARCH) $(LOG)
 		docker info $(LOG)
-		docker build --no-cache $$( [[ "$($*.gz_SQUASH)" != n ]] && echo --squash)\
+		docker build --no-cache $$( [[ "$($*.gz_SQUASH)" != n ]] && echo )\
 			--build-arg http_proxy=$(HTTP_PROXY) \
 			--build-arg https_proxy=$(HTTPS_PROXY) \
 			--build-arg no_proxy=$(NO_PROXY) \
@@ -1289,7 +1295,7 @@ DOCKER_LOAD_TARGETS += $(addsuffix -load,$(addprefix $(TARGET_PATH)/, \
 		      $(SONIC_BULLSEYE_DOCKERS)))
 
 endif
-
+$(info lbinxxxxxxxxDOCKER_LOAD_TARGETSxxxxxxxxxxxxxx, $(DOCKER_LOAD_TARGETS))
 $(DOCKER_LOAD_TARGETS) : $(TARGET_PATH)/%.gz-load : .platform docker-start $$(TARGET_PATH)/$$*.gz
 	$(HEADER)
 	$(call docker-image-load,$*)
