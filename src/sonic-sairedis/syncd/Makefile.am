@@ -5,7 +5,7 @@ AM_CXXFLAGS = $(SAIINC) -I$(top_srcdir)/lib -I$(top_srcdir)/vslib
 if SAIVS
 SAILIB=-L$(top_srcdir)/vslib/.libs -lsaivs
 else
-SAILIB=-lsai
+SAILIB = -lsai -lpthread -lhiredis -lapp -lctcsdk -lnl-3 -lnl-genl-3
 endif
 
 bin_PROGRAMS = syncd syncd_request_shutdown syncd_tests

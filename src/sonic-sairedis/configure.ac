@@ -195,27 +195,7 @@ CXXFLAGS_COMMON+=" -Wno-switch-default"
 CXXFLAGS_COMMON+=" -Wconversion"
 CXXFLAGS_COMMON+=" -Wno-psabi"
 
-SAVED_FLAGS="$CXXFLAGS"
-CXXFLAGS="-Wcast-align=strict"
-AC_MSG_CHECKING([whether CXX supports -Wcast-align=strict])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
-    [AC_MSG_RESULT([yes])]
-    [AC_SUBST([CXXFLAGS_COMMON], ["${CXXFLAGS_COMMON} -Wcast-align=strict"])],
-    [AC_MSG_RESULT([no])])
-CXXFLAGS="$SAVED_FLAGS"
 
-AC_SUBST(NO_CAST_FUNCTION_TYPE)
-
-SAVED_FLAGS="$CXXFLAGS"
-CXXFLAGS="-Wno-cast-function-type"
-AC_MSG_CHECKING([whether CXX supports -Wno-cast-function-type])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
-    [AC_MSG_RESULT([yes])]
-    [AC_SUBST([NO_CAST_FUNCTION_TYPE], ["-Wno-cast-function-type"])],
-    [AC_MSG_RESULT([no])])
-CXXFLAGS="$SAVED_FLAGS"
-
-AC_SUBST(CXXFLAGS_COMMON)
 
 AC_ARG_WITH(extra-libsai-ldflags,
 [  --with-extra-libsai-ldflags=FLAGS
@@ -224,55 +204,8 @@ AC_ARG_WITH(extra-libsai-ldflags,
 
 AC_SUBST(SAIINC, "-I\$(top_srcdir)/SAI/inc -I\$(top_srcdir)/SAI/experimental -I\$(top_srcdir)/SAI/meta")
 
-AM_COND_IF([SYNCD], [
-AM_COND_IF([SAIVS], [], [
-SAVED_FLAGS="$CXXFLAGS"
-CXXFLAGS="-Xlinker --no-as-needed -lsai -I$srcdir/SAI/inc -I$srcdir/SAI/experimental -I$srcdir/SAI/meta $EXTRA_LIBSAI_LDFLAGS"
-AC_CHECK_FUNCS(sai_query_api_version, [
-AC_MSG_CHECKING([SAI headers API version and library version check])
-AC_TRY_RUN([
-extern "C" {
-#include <sai.h>
-#include <cstdio>
-}
-int main() {
-    sai_api_version_t version;
-    if (SAI_STATUS_SUCCESS != sai_query_api_version(&version))
-    {
-        return 1;
-    }
-/*
-since commit 8e1fb37 (v1.8.0) there is check enum binary backward compatibility
-so we are relaxing this check below, versions do not have to be equal but both
-need to be at least 2ebde24 (v1.9.0), this will make sure that enums are always
-ok, but since that commit some data structures changed and are not binary
-backwad compatible like next hop group api, acl_capability, structs are
-backward binary compatible from commit aed34c8, which closest tag version for
-it is commit 3ff228a (v1.12.0), so min version check should be set to
-(v1.12.0), but some production branches do not use that high SAI version yet,
-some use even version v1.7.0 which then it is impossible to provide even enum
-backward compatibility, check those links:
-https://github.com/opencomputeproject/SAI/pull/1297 (enums)
-https://github.com/opencomputeproject/SAI/pull/1795 (structs)
-*/
-    sai_api_version_t minversion = SAI_VERSION(1,9,0);
-    printf("min SAI version: %ld, sairedis SAI headers version: %ld, vendor lib SAI query api version: %ld\n",
-           minversion, SAI_API_VERSION, version);
-    return (version < minversion) || (SAI_API_VERSION < minversion);
-}],
-[AC_MSG_RESULT(ok)],
-[AC_MSG_RESULT(failed)
-AC_MSG_ERROR("SAI headers API version and library version mismatch")])],
-[AC_MSG_ERROR("SAI library libsai.so does not have sai_query_api_version API which is required")])
-CXXFLAGS="$SAVED_FLAGS"
-])])
 
-AM_COND_IF([SYNCD], [
-SAVED_FLAGS="$CXXFLAGS"
-CXXFLAGS="-Xlinker --no-as-needed -lsai -I$srcdir/SAI/inc -I$srcdir/SAI/experimental -I$srcdir/SAI/meta"
-AC_CHECK_FUNCS(sai_bulk_object_clear_stats sai_bulk_object_get_stats)
-CXXFLAGS="$SAVED_FLAGS"
-])
+
 
 AC_DEFINE([SAIREDIS_GIT_REVISION],
         "[m4_esyscmd([echo -n $(git rev-parse --short HEAD || echo 0000000)])]",
