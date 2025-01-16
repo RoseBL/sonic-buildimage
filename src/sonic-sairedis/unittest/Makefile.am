@@ -1,1 +1,1 @@
-SUBDIRS = meta lib vslib syncd saidump
+#SUBDIRS = meta lib vslib syncd saidump

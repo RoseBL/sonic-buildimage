@@ -5,7 +5,7 @@ bin_PROGRAMS = saisdkdump
 if SAIVS
 SAILIB=-L$(top_srcdir)/vslib/.libs -lsaivs
 else
-SAILIB=-lsai
+SAILIB= -lsai -lpthread -lhiredis -lapp -lctcsdk -lnl-3 -lnl-genl-3
 endif
 
 saisdkdump_SOURCES = saisdkdump.cpp
