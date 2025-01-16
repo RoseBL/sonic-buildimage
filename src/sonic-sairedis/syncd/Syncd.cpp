@@ -35,6 +35,10 @@
 
 #include <iterator>
 #include <algorithm>
+//lbinxx add
+#include "ctc_socket/app_usr.h"
+#include "ctc_socket/ctc_comm.h"
+#include "ctc_socket/ctc_adapt_port_speed.h"
 
 #define DEF_SAI_WARM_BOOT_DATA_FILE "/var/warmboot/sai-warmboot.bin"
 #define SAI_FAILURE_DUMP_SCRIPT "/usr/bin/sai_failure_dump.sh"
@@ -49,7 +53,11 @@ using namespace std::placeholders;
 #else
 #define WD_DELAY_FACTOR 1
 #endif
-
+//lbinxx add
+extern "C" int cli_com_source_file(ctc_cmd_element_t *, ctc_vti_t *, int, char **);
+extern ctc_cmd_element_t cli_com_source_file_cmd;
+extern ctc_vti_t *g_ctc_vti;
+#define START_UP_CFG         "/root/syncd/start_up.cfg"
 Syncd::Syncd(
         _In_ std::shared_ptr<sairedis::SaiInterface> vendorSai,
         _In_ std::shared_ptr<CommandLineOptions> cmd,
@@ -3107,7 +3115,18 @@ sai_status_t Syncd::processOidCreate(
          * Object was created so new object id was generated we need to save
          * virtual id's to redis db.
          */
+        // lbinxx add 20241203
+        if (objectType == SAI_OBJECT_TYPE_SWITCH)
+        {
+            char *argv[1];
+            argv[0] = (char*)START_UP_CFG;
+            cli_com_source_file(&cli_com_source_file_cmd, g_ctc_vti, 1, argv);
 
+            int ret = ctc_adapt_port_speed_init();
+            if (0 != ret){
+                SWSS_LOG_NOTICE("lbinxx #### %s_%d ret=%d\n",__FUNCTION__,__LINE__,ret);
+            }
+        }
         m_translator->insertRidAndVid(objectRid, objectVid);
 
         SWSS_LOG_INFO("saved VID %s to RID %s",
@@ -5042,6 +5061,14 @@ void Syncd::run()
     volatile bool runMainLoop = true;
 
     std::shared_ptr<swss::Select> s = std::make_shared<swss::Select>();
+
+    //lbinxx add for socket init 
+    int ret;
+    ret = ctc_socket_init();
+    if (ret != 0) {
+        fprintf(stderr, "Failed to initialize socket: %d\n", ret);
+    }
+    printf("Socket initialized successfully.\n");
 
     try
     {

@@ -3012,16 +3012,6 @@ typedef enum _sai_switch_attr_t
     SAI_SWITCH_ATTR_ACL_STAGE_PRE_INGRESS,
 
     /**
-     * @brief POE device list
-     *
-     * @type sai_object_list_t
-     * @flags CREATE_AND_SET
-     * @objects SAI_OBJECT_TYPE_POE_DEVICE
-     * @default empty
-     */
-    SAI_SWITCH_ATTR_POE_DEVICE_LIST,
-
-    /**
      * @brief End of attributes
      */
     SAI_SWITCH_ATTR_END,
